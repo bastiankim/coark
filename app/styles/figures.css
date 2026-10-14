@@ -1,0 +1,67 @@
+/* Isometric series: one camera, one stroke system; brightness L1–L5 encodes what has effect. */
+.fig svg { width: 100%; height: auto; aspect-ratio: 1 / 1; max-width: 100%; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.fig svg path, .fig svg circle { fill: var(--surface); stroke-width: 1.25; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.fig svg .l1 { stroke: var(--fig-l1); }
+.fig svg .l2 { stroke: var(--fig-l2); }
+.fig svg .l23 { stroke: var(--fig-l23); }
+.fig svg .l3 { stroke: var(--fig-l3); }
+.fig svg .l4 { stroke: var(--fig-l4); }
+.fig svg .l5 { stroke: var(--fig-l5); }
+.fig svg .dash { fill: none; stroke-dasharray: 2 3.5; }
+.fig svg .flat { fill: none; }
+.fig svg .dot { stroke: none; }
+.fig svg .dot.l1 { fill: var(--fig-l1); }
+.fig svg .dot.l2 { fill: var(--fig-l2); }
+
+/* ---- Figure motion. Only under .motion (reduced motion → the static drawing above).
+   Translations are in iso units: +x = (0.866, 0.5), +y = (-0.866, 0.5), up = (0, -1). ---- */
+.motion .fig [data-scene]:not(.s1) :is(.f1-inc, .f1-pin, .f1-trace, .f2-step, .f2-refl, .f2-token, .f2-thread) { opacity: 0; }
+.motion .fig [data-scene].paused * { animation-play-state: paused; }
+
+/* FIG 0.1 — a pin lands, its trace runs, then the scope steps out. Docs and messages drift, never touching. */
+.motion .fig .s1 .f1-pin { animation: fig-drop .55s cubic-bezier(.2, .8, .2, 1) both; }
+.motion .fig .s1 .f1-trace { animation: fig-fade .35s ease-out both, fig-march 1.4s linear infinite; }
+.motion .fig .s1 .f1-inc { animation: fig-step-out .7s cubic-bezier(.2, .8, .2, 1) both; }
+.motion .fig .s1 .f1-pin.a1 { animation-delay: .2s; }
+.motion .fig .s1 .f1-trace.a1 { animation-delay: .6s, .6s; }
+.motion .fig .s1 .f1-inc.a1 { animation-delay: .85s; }
+.motion .fig .s1 .f1-pin.a2 { animation-delay: 1.4s; }
+.motion .fig .s1 .f1-trace.a2 { animation-delay: 1.8s, 1.8s; }
+.motion .fig .s1 .f1-inc.a2 { animation-delay: 2.05s; }
+.motion .fig .s1 .f1-float { animation: fig-bob 6s ease-in-out infinite alternate; }
+.motion .fig .s1 .f1-float.b2 { animation-delay: -1.5s; }
+.motion .fig .s1 .f1-float.b3 { animation-delay: -3s; }
+.motion .fig .s1 .f1-float.b4 { animation-delay: -4.5s; }
+
+/* FIG 0.2 — steps rise, an owner lands on each, the trace keeps flowing ground to ground. */
+.motion .fig .s1 .f2-step { animation: fig-rise .6s cubic-bezier(.2, .8, .2, 1) both; }
+.motion .fig .s1 .f2-refl { animation: fig-sink .6s cubic-bezier(.2, .8, .2, 1) both; }
+.motion .fig .s1 :is(.f2-step, .f2-refl).a2 { animation-delay: .15s; }
+.motion .fig .s1 :is(.f2-step, .f2-refl).a3 { animation-delay: .3s; }
+.motion .fig .s1 .f2-token { animation: fig-drop .5s cubic-bezier(.2, .8, .2, 1) both; }
+.motion .fig .s1 .f2-token.a1 { animation-delay: .8s; }
+.motion .fig .s1 .f2-token.a2 { animation-delay: 1s; }
+.motion .fig .s1 .f2-token.a3 { animation-delay: 1.2s; }
+.motion .fig .s1 .f2-thread { animation: fig-fade .4s ease-out 1.5s both, fig-march 1.4s linear infinite; }
+
+/* FIG 0.3 — task in, result out, through one gate. Both lanes share one class, so one beat. */
+.motion .fig .s1 .f3-task { animation: fig-task 4.8s cubic-bezier(.4, 0, .2, 1) infinite; }
+.motion .fig .s1 .f3-result { animation: fig-result 4.8s cubic-bezier(.4, 0, .2, 1) infinite; }
+
+@keyframes fig-fade { from { opacity: 0; } }
+@keyframes fig-march { to { stroke-dashoffset: -11; } }
+@keyframes fig-drop { from { opacity: 0; transform: translateY(-10px); } }
+@keyframes fig-rise { from { opacity: 0; transform: translateY(8px); } }
+@keyframes fig-sink { from { opacity: 0; transform: translateY(-8px); } }
+@keyframes fig-step-out { from { opacity: 0; transform: translate(-5.2px, -3px); } }
+@keyframes fig-bob { to { transform: translateY(-3px); } }
+@keyframes fig-task {
+  0%   { opacity: 0; transform: translate(8.7px, -5px); }
+  20%, 50% { opacity: 1; transform: none; }
+  62%, 100% { opacity: 0; transform: translate(-1.7px, 1px); }
+}
+@keyframes fig-result {
+  0%, 50% { opacity: 0; transform: translate(5.2px, -3px); }
+  65%, 86% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: translate(-8.7px, 5px); }
+}

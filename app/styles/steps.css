@@ -1,0 +1,29 @@
+/* Scene step engine. Generated: steps 1–12.
+   No .motion (reduced motion or no JS) => every scene shows its final state.
+   .motion => a scene shows step N content only once it has class sN (added cumulatively). */
+[data-at], [data-until] { transition: opacity .4s ease, visibility .4s; }
+:root:not(.motion) [data-until] { opacity: 0; visibility: hidden; }
+.motion [data-scene]:not(.s1) [data-at="1"], .motion [data-scene].s1 [data-until="1"] { opacity: 0; visibility: hidden; }
+.motion [data-scene]:not(.s2) [data-at="2"], .motion [data-scene].s2 [data-until="2"] { opacity: 0; visibility: hidden; }
+.motion [data-scene]:not(.s3) [data-at="3"], .motion [data-scene].s3 [data-until="3"] { opacity: 0; visibility: hidden; }
+.motion [data-scene]:not(.s4) [data-at="4"], .motion [data-scene].s4 [data-until="4"] { opacity: 0; visibility: hidden; }
+.motion [data-scene]:not(.s5) [data-at="5"], .motion [data-scene].s5 [data-until="5"] { opacity: 0; visibility: hidden; }
+.motion [data-scene]:not(.s6) [data-at="6"], .motion [data-scene].s6 [data-until="6"] { opacity: 0; visibility: hidden; }
+.motion [data-scene]:not(.s7) [data-at="7"], .motion [data-scene].s7 [data-until="7"] { opacity: 0; visibility: hidden; }
+.motion [data-scene]:not(.s8) [data-at="8"], .motion [data-scene].s8 [data-until="8"] { opacity: 0; visibility: hidden; }
+.motion [data-scene]:not(.s9) [data-at="9"], .motion [data-scene].s9 [data-until="9"] { opacity: 0; visibility: hidden; }
+.motion [data-scene]:not(.s10) [data-at="10"], .motion [data-scene].s10 [data-until="10"] { opacity: 0; visibility: hidden; }
+.motion [data-scene]:not(.s11) [data-at="11"], .motion [data-scene].s11 [data-until="11"] { opacity: 0; visibility: hidden; }
+.motion [data-scene]:not(.s12) [data-at="12"], .motion [data-scene].s12 [data-until="12"] { opacity: 0; visibility: hidden; }
+.motion [data-scene].s1 [data-mark-at="1"], :root:not(.motion) [data-mark-at="1"] { border-color: var(--ink); }
+.motion [data-scene].s2 [data-mark-at="2"], :root:not(.motion) [data-mark-at="2"] { border-color: var(--ink); }
+.motion [data-scene].s3 [data-mark-at="3"], :root:not(.motion) [data-mark-at="3"] { border-color: var(--ink); }
+.motion [data-scene].s4 [data-mark-at="4"], :root:not(.motion) [data-mark-at="4"] { border-color: var(--ink); }
+.motion [data-scene].s5 [data-mark-at="5"], :root:not(.motion) [data-mark-at="5"] { border-color: var(--ink); }
+.motion [data-scene].s6 [data-mark-at="6"], :root:not(.motion) [data-mark-at="6"] { border-color: var(--ink); }
+.motion [data-scene].s7 [data-mark-at="7"], :root:not(.motion) [data-mark-at="7"] { border-color: var(--ink); }
+.motion [data-scene].s8 [data-mark-at="8"], :root:not(.motion) [data-mark-at="8"] { border-color: var(--ink); }
+.motion [data-scene].s9 [data-mark-at="9"], :root:not(.motion) [data-mark-at="9"] { border-color: var(--ink); }
+.motion [data-scene].s10 [data-mark-at="10"], :root:not(.motion) [data-mark-at="10"] { border-color: var(--ink); }
+.motion [data-scene].s11 [data-mark-at="11"], :root:not(.motion) [data-mark-at="11"] { border-color: var(--ink); }
+.motion [data-scene].s12 [data-mark-at="12"], :root:not(.motion) [data-mark-at="12"] { border-color: var(--ink); }

@@ -1,0 +1,35 @@
+/* The only file allowed to contain color literals (§3-C, Pass #1).
+   Dark only. Authored in oklch; each value is the exact conversion of the specified hex (noted alongside). */
+:root {
+  color-scheme: dark;
+  --paper:   oklch(0.182 0.014 94.03);    /* #14120b */
+  --ink:     oklch(0.944 0.001 17.179);   /* #edecec */
+  --surface: oklch(0.214 0.012 91.771);   /* #1b1913 */
+  --sunken:  oklch(0.164 0.013 92.144);   /* #100e08 */
+  --line:    oklch(0.301 0.013 93.847);   /* #302e27 */
+  --muted:   oklch(0.721 0.009 98.93);    /* #a6a59f */
+  --st-running:  oklch(0.739 0.09 250.598);  /* #7fafe2 */
+  --st-pending:  oklch(0.801 0.1 79.953);    /* #e0b771 */
+  --st-approved: oklch(0.761 0.091 150.138); /* #87c293 */
+  --st-changes:  oklch(0.719 0.111 29.747);  /* #e1897b */
+
+  /* Figure brightness ladder (one hue, L only). L1 = ink; each step down is ~0.15 L. */
+  --fig-l1:  oklch(0.944 0.001 17.179);
+  --fig-l2:  oklch(0.8 0.008 95);
+  --fig-l23: oklch(0.72 0.009 95);
+  --fig-l3:  oklch(0.64 0.01 95);
+  --fig-l4:  oklch(0.48 0.011 95);
+  --fig-l5:  oklch(0.34 0.012 95);
+
+  /* Hero ground: paper at the top, lifting toward the bottom (one hue, L only). */
+  --hero-gradient: linear-gradient(in oklch to bottom,
+    oklch(18.2% 0.012 92) 0%,
+    oklch(18.2% 0.012 92) 26%,
+    oklch(24.2% 0.013 92) 40%,
+    oklch(29.7% 0.013 92) 56%,
+    oklch(36% 0.014 92) 68%,
+    oklch(39.6% 0.015 92) 81%,
+    oklch(45.2% 0.016 92) 100%
+  );
+
+}
