@@ -30,6 +30,7 @@
     "dev": "vite dev",
     "build": "vite build",
     "start": "vite preview",
-    "deploy": "vinext-cloudflare deploy"
+    "deploy": "vinext-cloudflare deploy",
+    "logo-lab": "node scripts/logo-lab.mjs"
   }
 }

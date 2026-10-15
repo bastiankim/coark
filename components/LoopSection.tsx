@@ -2,11 +2,10 @@ import { VisuallyHidden } from '@radix-ui/themes';
 import type { ReactNode } from 'react';
 
 // One grammar, used four times (§3-D): title | body + link, full-width scene, three sub-features.
-export function LoopSection({ id, title, body, href, caption, features, children }: {
+export function LoopSection({ id, title, body, caption, features, children }: {
   id: string;
   title: [string, string];
   body: string;
-  href: string;
   caption: string;
   features: [string, string][];
   children: ReactNode;
@@ -16,10 +15,7 @@ export function LoopSection({ id, title, body, href, caption, features, children
       <div className="wrap">
         <div className="grid grid-cols-1 items-end gap-5 md:grid-cols-2 md:gap-8">
           <h2 id={`${id}-title`} className="h2">{title[0]}<br />{title[1]}</h2>
-          <div className="flex max-w-[46ch] flex-col items-start gap-4">
-            <p className="body">{body}</p>
-            <a href={href} className="link-arrow">Learn more <span aria-hidden="true">→</span></a>
-          </div>
+          <p className="body max-w-[46ch]">{body}</p>
         </div>
         <figure className="mt-10 md:mt-16">
           <VisuallyHidden asChild><figcaption>{caption}</figcaption></VisuallyHidden>

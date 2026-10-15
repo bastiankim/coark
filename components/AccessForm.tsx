@@ -44,7 +44,6 @@ export function AccessForm() {
         {state.step === 'idle' && (
           <>
             <Button radius="full" className="btn btn-solid" onClick={() => setState({ step: 'form' })}>Request access</Button>
-            <Button asChild radius="full" className="btn btn-outline cta-outline"><a href="#docs">Read the docs</a></Button>
           </>
         )}
         {showForm && (

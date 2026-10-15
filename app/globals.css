@@ -100,15 +100,11 @@
   .btn-outline { background: transparent; color: var(--ink); border-color: var(--line); }
   .btn-outline:hover { border-color: var(--ink); background: transparent; }
 
-  .link-arrow { font-size: 15px; font-weight: var(--fw-medium); color: var(--ink); }
-  .link-arrow:hover { text-decoration: underline; text-underline-offset: 3px; }
-
   /* Hit areas: >=44px, extended vertically only so neighbors never overlap. */
-  .btn, .link-arrow, .hit { position: relative; }
-  .btn::before, .link-arrow::before, .hit::before { content: ""; position: absolute; left: 0; right: 0; }
+  .btn, .hit { position: relative; }
+  .btn::before, .hit::before { content: ""; position: absolute; left: 0; right: 0; }
   .btn::before { top: -2px; bottom: -2px; }
   .btn-sm::before { top: -6px; bottom: -6px; }
-  .link-arrow::before { top: -11px; bottom: -11px; }
   .hit::before { top: -13px; bottom: -13px; }
 
   /* Code-built product scenes are illustrations: inert, not selectable. */
@@ -121,6 +117,4 @@
 
 @layer components {
   /* --line vanishes on the gradient at the CTA's height; --muted keeps the outline visible. */
-  .cta-outline.btn-outline { border-color: var(--muted); }
-  .cta-outline.btn-outline:hover { border-color: var(--ink); }
 }

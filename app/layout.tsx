@@ -7,6 +7,7 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'coark — the work record for people and agents',
   description: 'Decide the scope. Anyone can do the work. Everything stays on the record.',
+  icons: { icon: { url: '/logo.svg', type: 'image/svg+xml' } },
 };
 
 export const viewport: Viewport = {

@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Logo Angle Lab</title>
+<style>
+  :root { --paper: #15130e; --panel: #1d1b16; --line: #34312a; --ink: #edecec; --muted: #9a978d; --dark: #46443b; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 14px/1.4 ui-sans-serif, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  .app { display: grid; grid-template-columns: 1fr 320px; min-height: 100vh; }
+  @media (max-width: 860px) { .app { grid-template-columns: 1fr; } }
+  .stage { position: relative; display: grid; place-items: center; padding: 32px; cursor: grab; touch-action: none; user-select: none; }
+  .stage:active { cursor: grabbing; }
+  .stage svg { width: min(62vh, 80%); height: auto; }
+  .hint { position: absolute; left: 24px; bottom: 20px; color: var(--muted); font-size: 12px; }
+  .compare { position: absolute; left: 24px; top: 20px; display: flex; gap: 10px; align-items: center; color: var(--muted); font-size: 12px; }
+  .compare img { width: 56px; height: 56px; }
+  aside { border-left: 1px solid var(--line); background: var(--panel); padding: 20px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
+  h1 { font-size: 15px; font-weight: 500; margin: 0; }
+  .presets { display: flex; flex-wrap: wrap; gap: 6px; }
+  button { font: inherit; font-size: 13px; color: var(--ink); background: transparent; border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; cursor: pointer; }
+  button:hover { border-color: var(--muted); }
+  button.solid { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .ctl { display: grid; grid-template-columns: 1fr auto; gap: 4px 8px; }
+  .ctl label { color: var(--muted); font-size: 12px; }
+  .ctl output { font: 12px ui-monospace, monospace; color: var(--ink); text-align: right; font-variant-numeric: tabular-nums; }
+  .ctl input { grid-column: 1 / -1; width: 100%; accent-color: var(--ink); }
+  .group { display: flex; flex-direction: column; gap: 12px; padding-top: 14px; border-top: 1px solid var(--line); }
+  .group > span { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .seg { display: flex; gap: 6px; }
+  .seg button[aria-pressed="true"] { border-color: var(--ink); }
+  .nav { display: flex; align-items: center; gap: 8px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 19px; font-weight: 500; letter-spacing: -.02em; }
+  .nav .sm { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+  .actions { display: flex; flex-wrap: wrap; gap: 6px; }
+  .status { min-height: 1.4em; color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <main class="stage" id="stage">
+    <div class="compare"><img src="/original.svg" alt="Original logo"> original</div>
+    <div id="view"></div>
+    <div class="hint">Drag: ← → rotate · ↑ ↓ eye height</div>
+  </main>
+  <aside>
+    <h1>Logo angle</h1>
+    <div class="presets" id="presets"></div>
+    <div class="group"><span>Camera</span>
+      <div class="ctl" data-k="yaw"></div>
+      <div class="ctl" data-k="eye"></div>
+      <div class="ctl" data-k="tilt"></div>
+      <div class="ctl" data-k="dist"></div>
+    </div>
+    <div class="group"><span>Form</span>
+      <div class="ctl" data-k="H"></div>
+      <div class="ctl" data-k="w"></div>
+      <div class="ctl" data-k="h"></div>
+    </div>
+    <div class="group"><span>Style</span>
+      <div class="seg" id="style">
+        <button data-v="panels">Panels</button><button data-v="wire">Outline</button>
+      </div>
+      <div class="ctl" data-k="inset"></div>
+      <div class="ctl" data-k="stroke"></div>
+    </div>
+    <div class="group"><span>At size</span>
+      <div class="nav"><span id="nav24"></span>coark<span class="sm" id="fav"></span></div>
+    </div>
+    <div class="group">
+      <div class="actions">
+        <button class="solid" id="apply">Apply to site</button>
+        <button id="restore">Restore original</button>
+        <button id="copy">Copy SVG</button>
+        <button id="download">Download</button>
+      </div>
+      <div class="status" id="status" role="status"></div>
+    </div>
+  </aside>
+</div>
+<script>
+// The mark as a real 3D form: a unit-footprint lower box, and a smaller box sitting on its front corner.
+// Two-point perspective by default (camera looks level, verticals stay vertical); tilt adds a third point.
+const LIGHT = '#edecec', DARK = '#46443b';
+const SPEC = {
+  yaw:    { label: 'Rotation',        min: 2,   max: 88,  step: 0.5,  fmt: v => v.toFixed(1) + '°' },
+  eye:    { label: 'Eye height',      min: -0.6, max: 2.4, step: 0.01, fmt: v => v.toFixed(2) },
+  tilt:   { label: 'Tilt',            min: -40, max: 40,  step: 0.5,  fmt: v => v.toFixed(1) + '°' },
+  dist:   { label: 'Distance (less = more perspective)', min: 1.6, max: 30, step: 0.05, fmt: v => v.toFixed(2) },
+  H:      { label: 'Lower box height', min: 0.4, max: 1.8, step: 0.01, fmt: v => v.toFixed(2) },
+  w:      { label: 'Upper box width',  min: 0.3, max: 1,   step: 0.01, fmt: v => v.toFixed(2) },
+  h:      { label: 'Upper box height', min: 0.1, max: 0.8, step: 0.01, fmt: v => v.toFixed(2) },
+  inset:  { label: 'Panel inset',      min: 0,   max: 0.2, step: 0.005, fmt: v => v.toFixed(3) },
+  stroke: { label: 'Stroke weight',    min: 0.4, max: 2,   step: 0.05, fmt: v => v.toFixed(2) + '×' },
+};
+const PRESETS = {
+  'Front (original)': { yaw: 45, eye: 0.5, tilt: 0, dist: 2.2 },
+  'Reference':        { yaw: 27, eye: 0.5, tilt: 0, dist: 2.4 },
+  'From above':       { yaw: 35, eye: 2.0, tilt: 24, dist: 3.2 },
+  'Flat':             { yaw: 45, eye: 0.5, tilt: 0, dist: 30 },
+};
+let P = { yaw: 27, eye: 0.5, tilt: 0, dist: 2.4, H: 1, w: 0.66, h: 0.3, inset: 0.1, stroke: 1, style: 'panels' };
+try { Object.assign(P, JSON.parse(localStorage.getItem('logo-lab') || '{}')); } catch {}
+
+const sub = (a, b) => [a[0]-b[0], a[1]-b[1], a[2]-b[2]];
+const dot = (a, b) => a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
+const cross = (a, b) => [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]];
+const norm = a => { const l = Math.hypot(...a); return a.map(v => v / l); };
+
+function faces(b, p) {
+  // Side faces carry (u: from the front vertical axis outward, v: up). Panels hug the front axis.
+  const { x1, y0, y1, z1, dark, vb, vt } = b, m = p.inset;
+  const out = [];
+  const side = (key, pt, n, uMax) => out.push({ key, n, origin: pt(0, y0), quad: [pt(0, y0), pt(uMax, y0), pt(uMax, y1), pt(0, y1)],
+    panel: key === dark && p.style === 'panels' && uMax - m > 0 && (y1 - vt) - (y0 + vb) > 0
+      ? [pt(0, y0 + vb), pt(uMax - m, y0 + vb), pt(uMax - m, y1 - vt), pt(0, y1 - vt)] : null });
+  side('-z', (u, y) => [u, y, 0], [0, 0, -1], x1);
+  side('-x', (u, y) => [0, y, u], [-1, 0, 0], z1);
+  side('+z', (u, y) => [u, y, z1], [0, 0, 1], x1);
+  side('+x', (u, y) => [x1, y, u], [1, 0, 0], z1);
+  out.push({ key: '+y', n: [0, 1, 0], origin: [0, y1, 0], quad: [[0, y1, 0], [x1, y1, 0], [x1, y1, z1], [0, y1, z1]] });
+  if (b.bottom) out.push({ key: '-y', n: [0, -1, 0], origin: [0, y0, 0], quad: [[0, y0, 0], [0, y0, z1], [x1, y0, z1], [x1, y0, 0]] });
+  return out;
+}
+
+function render(p) {
+  const a = p.yaw * Math.PI / 180, t = p.tilt * Math.PI / 180;
+  const cam = [0.5 - p.dist * Math.sin(a), p.eye, 0.5 - p.dist * Math.cos(a)];
+  const f = [Math.sin(a) * Math.cos(t), -Math.sin(t), Math.cos(a) * Math.cos(t)];
+  const r = norm([-f[2], 0, f[0]]), u = cross(r, f);
+  const proj = q => { const d = sub(q, cam), z = dot(d, f); return [dot(d, r) / z, -dot(d, u) / z]; };
+
+  // Checkerboard shading from the original: lower box dark on the right (-x), upper box dark on the left (-z).
+  const lower = { x1: 1, y0: 0, y1: p.H, z1: 1, dark: '-x', vb: p.inset, vt: p.inset, bottom: true };
+  const upper = { x1: p.w, y0: p.H, y1: p.H + p.h, z1: p.w, dark: '-z', vb: 0, vt: p.inset };
+  // Only the lower box's top plane separates them, so eye height alone decides who occludes whom.
+  const order = p.eye > p.H ? [lower, upper] : [upper, lower];
+
+  const layers = order.map(b => faces(b, p).filter(fc => dot(fc.n, sub(cam, fc.origin)) > 1e-9)
+    .map(fc => ({ quad: fc.quad.map(proj), panel: fc.panel && fc.panel.map(proj) })));
+
+  const all = layers.flat().flatMap(fc => fc.quad);
+  const xs = all.map(q => q[0]), ys = all.map(q => q[1]);
+  const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
+  const size = Math.max(maxX - minX, maxY - minY), k = 764 / size;            // normalize to the original's scale
+  const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2, half = 764 * 0.57;
+  const fmt = n => (Math.round(n * 100) / 100).toString();
+  const d = poly => 'M' + poly.map(([x, y]) => fmt((x - cx) * k) + ' ' + fmt((y - cy) * k)).join('L') + 'Z';
+  const sw = 26 * p.stroke, psw = 17 * p.stroke;
+
+  let body = '';
+  for (const fs of layers) {
+    body += `  <path d="${fs.map(fc => d(fc.quad)).join('')}" fill="${LIGHT}"/>\n`;
+    const panels = fs.filter(fc => fc.panel).map(fc => d(fc.panel)).join('');
+    if (panels) body += `  <path d="${panels}" fill="${DARK}" stroke="${DARK}" stroke-width="${psw}" stroke-linejoin="round"/>\n`;
+    body += `  <path d="${fs.map(fc => d(fc.quad)).join('')}" fill="none" stroke="${DARK}" stroke-width="${sw}" stroke-linejoin="round" stroke-linecap="round"/>\n`;
+  }
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${fmt(-half)} ${fmt(-half)} ${fmt(half * 2)} ${fmt(half * 2)}">\n${body}</svg>`;
+}
+
+// ---- UI
+const $ = s => document.querySelector(s);
+const ctls = {};
+for (const el of document.querySelectorAll('.ctl')) {
+  const key = el.dataset.k, s = SPEC[key], id = 'c-' + key;
+  el.innerHTML = `<label for="${id}">${s.label}</label><output for="${id}"></output><input id="${id}" type="range" min="${s.min}" max="${s.max}" step="${s.step}">`;
+  const input = el.querySelector('input');
+  input.addEventListener('input', () => { P[key] = +input.value; update(); });
+  ctls[key] = { input, out: el.querySelector('output'), s };
+}
+for (const [name, v] of Object.entries(PRESETS)) {
+  const b = document.createElement('button'); b.textContent = name;
+  b.onclick = () => { Object.assign(P, v); update(); };
+  $('#presets').append(b);
+}
+for (const b of document.querySelectorAll('#style button')) b.onclick = () => { P.style = b.dataset.v; update(); };
+
+let svg = '';
+function update() {
+  for (const [k, c] of Object.entries(ctls)) {
+    P[k] = Math.min(c.s.max, Math.max(c.s.min, P[k]));
+    c.input.value = P[k]; c.out.textContent = c.s.fmt(P[k]);
+  }
+  for (const b of document.querySelectorAll('#style button')) b.setAttribute('aria-pressed', b.dataset.v === P.style);
+  svg = render(P);
+  $('#view').innerHTML = svg;
+  const url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  $('#nav24').innerHTML = `<img src="${url}" width="24" height="24" alt="">`;
+  $('#fav').innerHTML = [16, 32, 48].map(s => `<img src="${url}" width="${s}" height="${s}" alt="">`).join('');
+  try { localStorage.setItem('logo-lab', JSON.stringify(P)); } catch {}
+}
+
+const stage = $('#stage');
+let drag = null;
+stage.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, yaw: P.yaw, eye: P.eye }; stage.setPointerCapture(e.pointerId); });
+stage.addEventListener('pointermove', e => {
+  if (!drag) return;
+  P.yaw = drag.yaw - (e.clientX - drag.x) * 0.25;
+  P.eye = drag.eye - (e.clientY - drag.y) * 0.006;
+  update();
+});
+stage.addEventListener('pointerup', () => drag = null);
+stage.addEventListener('pointercancel', () => drag = null);
+
+const status = msg => $('#status').textContent = msg;
+async function post(text) {
+  const res = await fetch('/apply', { method: 'POST', body: text });
+  if (!res.ok) throw new Error(await res.text());
+}
+$('#apply').onclick = async () => {
+  try { await post(svg); status('Applied. Reload the site to see it.'); } catch (e) { status('Couldn’t apply: ' + e.message); }
+};
+$('#restore').onclick = async () => {
+  try { await post(await (await fetch('/original.svg')).text()); status('Original restored on the site.'); } catch (e) { status('Couldn’t restore: ' + e.message); }
+};
+$('#copy').onclick = async () => {
+  try { await navigator.clipboard.writeText(svg); status('SVG copied.'); } catch { status('Clipboard blocked. Use Download instead.'); }
+};
+$('#download').onclick = () => {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
+  a.download = `coark-logo-${Math.round(P.yaw)}deg.svg`; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+};
+update();
+</script>
+</body>
+</html>

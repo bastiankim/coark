@@ -1,6 +1,4 @@
 import { Hono } from 'hono';
-import { changelog } from '@/lib/changelog';
-import { stack } from '@/lib/stack';
 
 type KV = { put(key: string, value: string): Promise<void> };
 type Bindings = { ACCESS_REQUESTS?: KV };
@@ -11,10 +9,6 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const api = new Hono<{ Bindings: Bindings }>().basePath('/api');
 
 api.get('/health', (c) => c.json({ ok: true }));
-
-api.get('/changelog', (c) => c.json({ placeholder: true, entries: changelog }));
-
-api.get('/stack', (c) => c.json({ rows: stack }));
 
 api.post('/access', async (c) => {
   let body: unknown;

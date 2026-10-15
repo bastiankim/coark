@@ -32,11 +32,10 @@ export function Hero() {
         <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">
           <p className="body">Decide the scope. Anyone can do the work. Everything stays on the record.</p>
           {/* placeholder: replace with the real latest release */}
-          <a href="#record" className="hit inline-flex h-[30px] items-center gap-2 rounded-full border border-line bg-surface pr-3 pl-1 text-[13px] transition-[border-color] duration-150 ease-out hover:border-ink">
+          <p className="inline-flex h-[30px] items-center gap-2 rounded-full border border-line bg-surface pr-3 pl-1 text-[13px]">
             <span className="inline-flex h-[22px] items-center rounded-full bg-ink px-2 text-xs font-medium text-paper">New</span>
             <span>Decision stamps in threads</span>
-            <span aria-hidden="true">→</span>
-          </a>
+          </p>
         </div>
         <CtaButton href="#access" className="mt-8">Request access</CtaButton>
       </div>
